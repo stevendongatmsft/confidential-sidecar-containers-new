@@ -342,13 +342,26 @@ func (s *server) GetReport(c context.Context, in *keyprovider.KeyProviderGetRepo
 		return nil, status.Errorf(codes.FailedPrecondition, "SEV guest driver is missing: %v", err)
 	}
 
-	SNPReportString, err := attest.RawAttest([]byte(reportDataStr), nil)
+	// SNPReportString, err := attest.RawAttest([]byte(reportDataStr), nil)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Failed to generate attestation report: %v", err)
+	// }
+
+	var attestationReportFetcher attest.AttestationReportFetcher
+	if _, err := os.Stat("/dev/sev"); errors.Is(err, os.ErrNotExist) {
+		hostData := attest.GenerateMAAHostData([]byte(reportDataStr))
+		attestationReportFetcher = attest.UnsafeNewFakeAttestationReportFetcher(hostData)
+	} else {
+		attestationReportFetcher = attest.NewAttestationReportFetcher()
+	}
+	reportData := attest.GenerateMAAReportData(nil)
+	rawReport, err := attestationReportFetcher.FetchAttestationReportHex(reportData)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed to generate attestation report: %v", err)
+		return nil, status.Errorf(codes.Unknown, "Fetch Attestation Report Failed: %v", err)
 	}
 
 	return &keyprovider.KeyProviderGetReportOutput{
-		ReportHexString: SNPReportString,
+		ReportHexString: rawReport,
 	}, nil
 }
 
