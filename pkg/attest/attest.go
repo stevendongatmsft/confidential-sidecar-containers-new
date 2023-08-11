@@ -4,6 +4,8 @@
 package attest
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
@@ -70,6 +72,51 @@ func GenerateMAAHostData(inputBytes []byte) [HOST_DATA_SIZE]byte {
 	return hostData
 }
 
+func GetSNPAttestationReportHostData(uvmInformation *common.UvmInformation) (string, error) {
+	inittimeDataBytes, err := base64.StdEncoding.DecodeString(uvmInformation.EncodedSecurityPolicy)
+	if err != nil {
+		return "", errors.Wrap(err, "decoding policy from Base64 format failed")
+	}
+
+	logrus.Debugf("   inittimeDataBytes:    %v", inittimeDataBytes)
+
+	privateWrappingKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		logrus.Fatalf("rsa key pair generation failed")
+	}
+
+	// construct the key blob
+	jwkSetBytes, err := common.GenerateJWKSet(privateWrappingKey)
+	if err != nil {
+		logrus.Fatalf("generating key blob failed")
+	}
+
+	// Fetch the attestation report
+
+	var reportFetcher AttestationReportFetcher
+	// Use fake attestation report if it's not running inside SNP VM
+	if _, err := os.Stat("/dev/sev"); errors.Is(err, os.ErrNotExist) {
+		hostData := GenerateMAAHostData(inittimeDataBytes)
+		reportFetcher = UnsafeNewFakeAttestationReportFetcher(hostData)
+	} else {
+		reportFetcher = NewAttestationReportFetcher()
+	}
+
+	reportData := GenerateMAAReportData(jwkSetBytes)
+	SNPReportBytes, err := reportFetcher.FetchAttestationReportByte(reportData)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to retrieve attestation report")
+	}
+
+	// Retrieve the certificate chain using the chip identifier and platform version
+	// fields of the attestation report
+	var SNPReport SNPAttestationReport
+	if err = SNPReport.DeserializeReport(SNPReportBytes); err != nil {
+		return "", errors.Wrapf(err, "failed to deserialize attestation report")
+	}
+	return SNPReport.HostData, nil
+}
+
 // Attest interacts with maa services to fetch an MAA token
 // MAA expects four attributes:
 // (A) the attestation report signed by the PSP signing key
@@ -115,8 +162,8 @@ func (certState *CertState) Attest(maa MAA, runtimeDataBytes []byte, uvmInformat
 		return "", errors.Wrapf(err, "failed to deserialize attestation report")
 	}
 
-	logrus.Debugf("SNP Report Reported TCB: %d\nCert Chain TCBM Value: %d\n", SNPReport.ReportedTCB, certState.Tcbm)
-
+	fmt.Printf("SNP Report Reported TCB: %d\nCert Chain TCBM Value: %d\n", SNPReport.ReportedTCB, certState.Tcbm)
+	fmt.Printf("SNP Report HostData %s\n", SNPReport.HostData)
 	// At this point check that the TCB of the cert chain matches that reported so we fail early or
 	// fetch fresh certs by other means.
 	var vcekCertChain []byte
