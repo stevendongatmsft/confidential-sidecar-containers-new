@@ -196,7 +196,7 @@ func (certState *CertState) Attest(maa MAA, runtimeDataBytes []byte, uvmInformat
 	}
 
 	// Retrieve the MAA token required by the request's MAA endpoint
-	maaToken, err := maa.attest(SNPReportBytes, vcekCertChain, inittimeDataBytes, runtimeDataBytes, uvmReferenceInfoBytes, uvmInformation.EncodedSecurityPolicy)
+	maaToken, err := maa.attest(SNPReportBytes, vcekCertChain, inittimeDataBytes, runtimeDataBytes, uvmReferenceInfoBytes)
 	if err != nil || maaToken == "" {
 		return "", errors.Wrapf(err, "retrieving MAA token from MAA endpoint failed")
 	}

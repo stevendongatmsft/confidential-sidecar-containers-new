@@ -508,7 +508,8 @@ func Populate() {
 	if err != nil {
 		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
 	}
-	fmt.Println("is this successfull? ", EncodedUvmInformation.EncodedSecurityPolicy)
+	logrus.Debugf("is this successfull? ")
+	logrus.Debugf(EncodedUvmInformation.EncodedSecurityPolicy)
 }
 
 func setupServer(certState *attest.CertState, identity *common.Identity, uvmInfo *common.UvmInformation, url string) {
