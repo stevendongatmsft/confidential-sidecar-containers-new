@@ -433,11 +433,7 @@ func main() {
 	logrus.Debugf("   outfile:    %s", *outfile)
 	logrus.Debugf("   loglevel:    %s", *logLevel)
 
-	EncodedUvmInformation, err = common.GetUvmInformation()
-	if err != nil {
-		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
-	}
-
+	Populate()
 	// Decode base64 attestation information only if it s not empty
 	if *azureInfoBase64string != "" {
 		bytes, err := base64.StdEncoding.DecodeString(*azureInfoBase64string)
@@ -488,6 +484,31 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to start GRPC server: %v", err)
 	}
+}
+
+func Populate() {
+	var err error
+	EncodedUvmInformation, err = common.GetUvmInformationAASP()
+	if err != nil {
+		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	}
+
+	privateWrappingKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		logrus.Fatalf("rsa key pair generation failed")
+	}
+
+	// construct the key blob
+	jwkSetBytes, err := common.GenerateJWKSet(privateWrappingKey)
+	if err != nil {
+		logrus.Fatalf("generating key blob failed")
+	}
+
+	EncodedUvmInformation.EncodedSecurityPolicy, err = attest.GetSNPAttestationReportHostData(jwkSetBytes, EncodedUvmInformation)
+	if err != nil {
+		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	}
+	fmt.Println("is this successfull? ", EncodedUvmInformation.EncodedSecurityPolicy)
 }
 
 func setupServer(certState *attest.CertState, identity *common.Identity, uvmInfo *common.UvmInformation, url string) {

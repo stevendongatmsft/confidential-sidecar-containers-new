@@ -6,11 +6,9 @@ package common
 import (
 	"encoding/base64"
 	"encoding/json"
-	"io/ioutil"
-	"strconv"
-
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -73,12 +71,20 @@ type UvmInformation struct {
 
 // Matching PR https://github.com/microsoft/hcsshim/pull/1708
 
-func GetUvmInformation() (UvmInformation, error) {
+func GetUvmSecurityCtxDir() (string, error) {
 	securityContextDir := os.Getenv("UVM_SECURITY_CONTEXT_DIR")
-	if securityContextDir != "" {
-		return GetUvmInformationFromFiles()
-	} else {
+	if securityContextDir == "" {
+		return "", errors.New("UVM_SECURITY_CONTEXT_DIR not set")
+	}
+	return securityContextDir, nil
+}
+
+func GetUvmInformation() (UvmInformation, error) {
+	_, err := GetUvmSecurityCtxDir()
+	if err != nil {
 		return GetUvmInformationFromEnv()
+	} else {
+		return GetUvmInformationFromFiles()
 	}
 }
 
@@ -88,7 +94,7 @@ func GetUvmInformationFromEnv() (UvmInformation, error) {
 	encodedHostCertsFromTHIM := os.Getenv("UVM_HOST_AMD_CERTIFICATE")
 
 	if GenerateTestData {
-		ioutil.WriteFile("uvm_host_amd_certificate.base64", []byte(encodedHostCertsFromTHIM), 0644)
+		os.WriteFile("uvm_host_amd_certificate.base64", []byte(encodedHostCertsFromTHIM), 0644)
 	}
 
 	if encodedHostCertsFromTHIM != "" {
@@ -102,8 +108,8 @@ func GetUvmInformationFromEnv() (UvmInformation, error) {
 	encodedUvmInformation.EncodedUvmReferenceInfo = os.Getenv("UVM_REFERENCE_INFO")
 
 	if GenerateTestData {
-		ioutil.WriteFile("uvm_security_policy.base64", []byte(encodedUvmInformation.EncodedSecurityPolicy), 0644)
-		ioutil.WriteFile("uvm_reference_info.base64", []byte(encodedUvmInformation.EncodedUvmReferenceInfo), 0644)
+		os.WriteFile("uvm_security_policy.base64", []byte(encodedUvmInformation.EncodedSecurityPolicy), 0644)
+		os.WriteFile("uvm_reference_info.base64", []byte(encodedUvmInformation.EncodedUvmReferenceInfo), 0644)
 	}
 
 	return encodedUvmInformation, nil
@@ -130,9 +136,9 @@ func readSecurityContextFile(dir string, filename string) (string, error) {
 func GetUvmInformationFromFiles() (UvmInformation, error) {
 	var encodedUvmInformation UvmInformation
 
-	securityContextDir := os.Getenv("UVM_SECURITY_CONTEXT_DIR")
-	if securityContextDir == "" {
-		return encodedUvmInformation, errors.New("UVM_SECURITY_CONTEXT_DIR not set")
+	securityContextDir, err := GetUvmSecurityCtxDir()
+	if err != nil {
+		return encodedUvmInformation, err
 	}
 
 	encodedHostCertsFromTHIM, err := readSecurityContextFile(securityContextDir, HostAMDCertFilename)
@@ -141,7 +147,7 @@ func GetUvmInformationFromFiles() (UvmInformation, error) {
 	}
 
 	if GenerateTestData {
-		ioutil.WriteFile("uvm_host_amd_certificate.base64", []byte(encodedHostCertsFromTHIM), 0644)
+		os.WriteFile("uvm_host_amd_certificate.base64", []byte(encodedHostCertsFromTHIM), 0644)
 	}
 
 	if encodedHostCertsFromTHIM != "" {
@@ -157,15 +163,38 @@ func GetUvmInformationFromFiles() (UvmInformation, error) {
 		return encodedUvmInformation, errors.Wrapf(err, "reading security policy failed")
 	}
 
-	encodedUvmInformation.EncodedUvmReferenceInfo, err = readSecurityContextFile(securityContextDir, ReferenceInfoFilename)
+	encodedUvmInformation.EncodedUvmReferenceInfo, err = GetReferenceInfoFile(securityContextDir, ReferenceInfoFilename)
 	if err != nil {
-		return encodedUvmInformation, errors.Wrapf(err, "reading uvm reference info failed")
+		return encodedUvmInformation, err
 	}
 
 	if GenerateTestData {
-		ioutil.WriteFile("uvm_security_policy.base64", []byte(encodedUvmInformation.EncodedSecurityPolicy), 0644)
-		ioutil.WriteFile("uvm_reference_info.base64", []byte(encodedUvmInformation.EncodedUvmReferenceInfo), 0644)
+		os.WriteFile("uvm_security_policy.base64", []byte(encodedUvmInformation.EncodedSecurityPolicy), 0644)
+		os.WriteFile("uvm_reference_info.base64", []byte(encodedUvmInformation.EncodedUvmReferenceInfo), 0644)
 	}
 
+	return encodedUvmInformation, nil
+}
+
+func GetReferenceInfoFile(securityContextDir string, ReferenceInfoFilename string) (string, error) {
+	encodedUvmReferenceInfo, err := readSecurityContextFile(securityContextDir, ReferenceInfoFilename)
+	if err != nil {
+		return encodedUvmReferenceInfo, errors.Wrapf(err, "reading uvm reference info failed")
+	}
+	return encodedUvmReferenceInfo, nil
+}
+
+func GetUvmInformationAASP() (UvmInformation, error) {
+	var encodedUvmInformation UvmInformation
+
+	securityContextDir, err := GetUvmSecurityCtxDir()
+	if err != nil {
+		return encodedUvmInformation, err
+	}
+
+	encodedUvmInformation.EncodedUvmReferenceInfo, err = GetReferenceInfoFile(securityContextDir, ReferenceInfoFilename)
+	if err != nil {
+		return encodedUvmInformation, err
+	}
 	return encodedUvmInformation, nil
 }
