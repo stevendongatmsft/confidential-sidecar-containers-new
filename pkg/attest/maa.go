@@ -96,7 +96,7 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 	// 	SNPReport:    base64.URLEncoding.EncodeToString(snpAttestationReport),
 	// 	CertChain:    base64.URLEncoding.EncodeToString(vcekCertChain),
 	// 	Endorsements: base64urlEncodedmaaEndorsement,
-	// }
+	// }false && policyBlob != nil
 
 	// maaReportJSONBytes, err := json.Marshal(maaReport)
 	// if err != nil {
@@ -144,14 +144,16 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 	// As of today we CANNOT pass the policy as it is rego, so not good json and only json
 	// is currently supported byt MAA, not binary.
 	if false && policyBlob != nil {
+		fmt.Println("this was executed")
 		request.InittimeData = attestedData{
 			Data:     base64.URLEncoding.EncodeToString(policyBlob),
 			DataType: "binary", // rego really
 		}
 	}
-
+	fmt.Println("zanku ", (false && policyBlob != nil))
 	rand.Seed(time.Now().UnixNano())
 	request.Nonce = rand.Uint64()
+	fmt.Printf("sorewa: \n%+v", request)
 
 	return &request, nil
 }
