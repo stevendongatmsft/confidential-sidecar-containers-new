@@ -236,6 +236,8 @@ func (certFetcher CertFetcher) retrieveCertChain(chipID string, reportedTCB uint
 			return fullCertChain, reportedTCB, nil
 		case "LocalTHIM":
 			uri = fmt.Sprintf(LocalTHIMUriTemplate, certFetcher.Endpoint)
+			fmt.Println("let's print out the uri\n")
+			fmt.Print(uri)
 			// local THIM cert cache endpoint returns THIM Certs object
 			THIMCertsBytes, err := fetchWithRetry(uri, defaultRetryBaseSec, defaultRetryMaxRetries)
 			if err != nil {
