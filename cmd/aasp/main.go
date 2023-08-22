@@ -433,7 +433,7 @@ func main() {
 	logrus.Debugf("   outfile:    %s", *outfile)
 	logrus.Debugf("   loglevel:    %s", *logLevel)
 
-	Populate()
+	//Populate()
 	// Decode base64 attestation information only if it s not empty
 	if *azureInfoBase64string != "" {
 		bytes, err := base64.StdEncoding.DecodeString(*azureInfoBase64string)

@@ -31,7 +31,7 @@ const (
 	AzureCertCacheRequestURITemplate = "https://%s/%s/certificates/%s/%s?%s"
 	AmdVCEKRequestURITemplate        = "https://%s/%s/%s?ucodeSPL=%d&snpSPL=%d&teeSPL=%d&blSPL=%d"
 	AmdCertChainRequestURITemplate   = "https://%s/%s/cert_chain"
-	LocalTHIMUriTemplate             = "https://%s" // To-Do update once we know what this looks like
+	LocalTHIMUriTemplate             = "http://%s" // To-Do update once we know what this looks like
 )
 
 const (
