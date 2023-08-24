@@ -444,7 +444,7 @@ func main() {
 
 	thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
 	if err != nil {
-		logrus.Warn("Failed to retrieve thim certs: %s", err.Error())
+		logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
 	}
 
 	EncodedUvmInformation.InitialCerts = *thimCerts
