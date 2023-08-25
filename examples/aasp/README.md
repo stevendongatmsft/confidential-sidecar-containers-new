@@ -95,7 +95,7 @@ go build -o aasp <path-to-aasp-main.go>
 ```
 
 In the following example, the secret is stored in file [plaintext](plaintext). 
-Assuming the name of the key we created in the above step is `testkey000`, we can generates a wrapped secret using the public key and store it in a file named wrapped(adjust the path to the key if necessary). 
+Assuming the name of the key we created in the above step is `testkey000`, we can generate a wrapped secret using the public key and store it in a file named wrapped(adjust the path to the key if necessary). 
 This file will be used to unwrap the secret later. 
 The wrapped file will be used to generate an argument that gets passed into grpcurl command to invoke the exposed gRPC APIs. 
 

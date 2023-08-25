@@ -170,6 +170,7 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 func (maa MAA) attest(SNPReportHexBytes []byte, vcekCertChain []byte, policyBlobBytes []byte, keyBlobBytes []byte, encodedUvmReferenceInfo []byte) (MAAToken string, err error) {
 	// Construct attestation request that contain the four attributes
 	request, err := newAttestSNPRequestBody(SNPReportHexBytes, vcekCertChain, policyBlobBytes, keyBlobBytes, encodedUvmReferenceInfo)
+	logrus.Debugf("print out request \n%+v", request)
 	if err != nil {
 		return "", errors.Wrapf(err, "creating new AttestSNPRequestBody failed")
 	}

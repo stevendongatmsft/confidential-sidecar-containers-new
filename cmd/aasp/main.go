@@ -364,7 +364,6 @@ func main() {
 	azureInfoBase64string := flag.String("aasp-cert-cache-args", os.Getenv(CertCacheEndpoint), "optional base64-encoded json string with azure information")
 	port := flag.String("keyprovider_sock", "127.0.0.1:50000", "Port on which the grpc key provider to listen")
 	httpport := flag.String("http_keyprovider_sock", "8080", "Port on which the http key provider to listen")
-	flag.String("getresource_sock", "127.0.0.1:50001", "Port on which the resource provider to listen. Ignored")
 	infile := flag.String("infile", "", "The file with its content to be wrapped")
 	key_path := flag.String("keypath", "", "The path to the wrapping key")
 	outfile := flag.String("outfile", "", "The file to save the wrapped data")
@@ -441,19 +440,25 @@ func main() {
 			logrus.Fatalf("Failed to unmarshal: %s", err.Error())
 		}
 	}
+	usethim := os.Getenv("USETHIM")
+	if usethim == "true" {
+		thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
+		if err != nil {
+			logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
+		}
 
-	thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
-	if err != nil {
-		logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
+		EncodedUvmInformation.InitialCerts = *thimCerts
 	}
 
-	EncodedUvmInformation.InitialCerts = *thimCerts
 	// pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
-	common.GetUvmInformationAASP(&EncodedUvmInformation)
+	// common.GetUvmInformationAASP(&EncodedUvmInformation)
+	// if err != nil {
+	// 	logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	// }
+	EncodedUvmInformation, err := common.GetUvmInformation() // from the env.
 	if err != nil {
 		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
 	}
-
 	var tcbm string
 
 	if len(EncodedUvmInformation.InitialCerts.Tcbm) == 0 {
@@ -469,6 +474,7 @@ func main() {
 		logrus.Fatal("Unable to convert intial TCBM to a uint64")
 	}
 
+	logrus.Debugf("setting tcbm to EncodedUvmInformation.InitialCerts.Tcbm value 2: %d\n", thimTcbm)
 	ServerCertState = attest.CertState{
 		CertFetcher: azure_info.CertFetcher,
 		Tcbm:        thimTcbm,
