@@ -144,6 +144,7 @@ func PostMAAAttest(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": errors.New("serverCertState is not set")})
 		return
 	}
+	logrus.Debugf("Right after getting global state the tcbm value %d", certState.Tcbm)
 
 	uvmInfo, ok := c.MustGet("uvmInfo").(*common.UvmInformation)
 	if !ok {
@@ -231,6 +232,7 @@ func PostKeyRelease(c *gin.Context) {
 
 func RegisterGlobalStates(certState *attest.CertState, identity *common.Identity, uvmInfo *common.UvmInformation) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logrus.Debugf("registering certstate %d", certState.Tcbm)
 		c.Set("certState", certState)
 		c.Set("identity", identity)
 		c.Set("uvmInfo", uvmInfo)
