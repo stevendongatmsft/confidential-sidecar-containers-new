@@ -459,7 +459,8 @@ func main() {
 
 		EncodedUvmInformation.InitialCerts = *thimCerts
 	}
-
+	logrus.Debugf("Printing vcek %s", EncodedUvmInformation.InitialCerts.VcekCert)
+	logrus.Debugf("Printing tcbm %s", EncodedUvmInformation.InitialCerts.Tcbm)
 	// pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
 	common.GetUvmInformationAASP(&EncodedUvmInformation)
 	if err != nil {
