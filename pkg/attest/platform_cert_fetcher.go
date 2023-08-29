@@ -14,7 +14,7 @@ import (
 	"encoding/binary"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"math/rand"
 	"net/http"
@@ -179,7 +179,7 @@ func fetchWithRetry(requestURL string, baseSec int, maxRetries int, httpRequestF
 		if 200 <= res.StatusCode && res.StatusCode < 300 {
 			// Got successful status code 2xx
 			defer res.Body.Close()
-			resBody, err := ioutil.ReadAll(res.Body)
+			resBody, err := io.ReadAll(res.Body)
 			if err != nil {
 				retryCount++
 				continue
@@ -192,7 +192,7 @@ func fetchWithRetry(requestURL string, baseSec int, maxRetries int, httpRequestF
 		} else {
 			// Got status code that is not worth to retry
 			defer res.Body.Close()
-			resBody, err := ioutil.ReadAll(res.Body)
+			resBody, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, fmt.Errorf("got error while handling non successful response with status code %d: %s", res.StatusCode, err)
 			}
