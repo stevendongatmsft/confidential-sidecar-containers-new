@@ -168,35 +168,43 @@ func (certState *CertState) Attest(maa MAA, runtimeDataBytes []byte, uvmInformat
 	// fetch fresh certs by other means.
 	var vcekCertChain []byte
 	if SNPReport.ReportedTCB != certState.Tcbm {
+		logrus.Debugf("1st report on SNPReport.ReportedTCB != certState.Tcbm")
 		// TCB values not the same, try refreshing cert cache first
 		vcekCertChain, err = certState.RefreshCertChain(SNPReport)
 		if err != nil {
+			logrus.Debugf("RefreshCertChain failed. ", err)
 			return "", err
 		}
 
 		if SNPReport.ReportedTCB != certState.Tcbm {
+			logrus.Debugf("2nd report on SNPReport.ReportedTCB != certState.Tcbm")
 			// TCB values still don't match, try retrieving the SNP report again
 			SNPReportBytes, err := reportFetcher.FetchAttestationReportByte(reportData)
 			if err != nil {
+				logrus.Debugf("failed to retrieve attestation report. ", err)
 				return "", errors.Wrapf(err, "failed to retrieve new attestation report")
 			}
 
 			if err = SNPReport.DeserializeReport(SNPReportBytes); err != nil {
+				logrus.Debugf("failed to deserialize report. ", err)
 				return "", errors.Wrapf(err, "failed to deserialize new attestation report")
 			}
 
 			// refresh certs again
 			vcekCertChain, err = certState.RefreshCertChain(SNPReport)
 			if err != nil {
+				logrus.Debugf("RefreshCertChain. ", err)
 				return "", err
 			}
 
 			// if no match after refreshing certs and attestation report, fail
 			if SNPReport.ReportedTCB != certState.Tcbm {
+				logrus.Debugf("3rd report on SNPReport.ReportedTCB != certState.Tcbm")
 				return "", errors.New(fmt.Sprintf("SNP reported TCB value: %d doesn't match Certificate TCB value: %d", SNPReport.ReportedTCB, certState.Tcbm))
 			}
 		}
 	} else {
+		logrus.Debugf("SNPReport.ReportedTCB reported to be equal to certState.Tcbm")
 		certString := uvmInformation.InitialCerts.VcekCert + uvmInformation.InitialCerts.CertificateChain
 		vcekCertChain = []byte(certString)
 	}
