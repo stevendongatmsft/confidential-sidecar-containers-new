@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -134,6 +135,7 @@ const (
 
 func readSecurityContextFile(dir string, filename string) (string, error) {
 	targetFilename := filepath.Join(dir, filename)
+	fmt.Println("theksl kdsa ", targetFilename)
 	blob, err := os.ReadFile(targetFilename)
 	if err != nil {
 		return "", err
