@@ -167,8 +167,7 @@ func fetchWithRetry(requestURL string, baseSec int, maxRetries int, httpRequestF
 		}
 		if httpRequestFunc != nil {
 			res, err = httpRequestFunc(requestURL)
-			fmt.Println("printing out response raw")
-			fmt.Printf("%+v\n", res.StatusCode)
+			fmt.Println("printing out response raw ", res.StatusCode)
 		} else {
 			res, err = http.Get(requestURL)
 		}

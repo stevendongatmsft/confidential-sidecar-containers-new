@@ -462,10 +462,10 @@ func main() {
 	logrus.Debugf("Printing vcek %s", EncodedUvmInformation.InitialCerts.VcekCert)
 	logrus.Debugf("Printing tcbm %s", EncodedUvmInformation.InitialCerts.Tcbm)
 	// pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
-	// common.GetUvmInformationAASP(&EncodedUvmInformation)
-	// if err != nil {
-	// 	logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
-	// }
+	common.GetUvmInformationAASP(&EncodedUvmInformation)
+	if err != nil {
+		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	}
 
 	var tcbm string
 
