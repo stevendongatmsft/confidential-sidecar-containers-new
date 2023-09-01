@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"io/ioutil"
 	"math/rand"
@@ -104,7 +105,8 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 	// }
 	var maaReportJSONBytes []byte
 
-	if len(uvmReferenceInfo) != 0 {
+	end := os.Getenv("INCEND")
+	if end == "true" {
 		maaReportWithEndorsement := maaReportWithEndorsement{
 			maaReport: &maaReport{
 				SNPReport: base64.URLEncoding.EncodeToString(snpAttestationReport),
@@ -169,6 +171,7 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 //
 // Note, the using the leaf cert will be changed to a DID based scheme similar to fragments.
 func (maa MAA) attest(SNPReportHexBytes []byte, vcekCertChain []byte, policyBlobBytes []byte, keyBlobBytes []byte, encodedUvmReferenceInfo []byte) (MAAToken string, err error) {
+	fmt.Println("entered attest func")
 	// Construct attestation request that contain the four attributes
 	request, err := newAttestSNPRequestBody(SNPReportHexBytes, vcekCertChain, policyBlobBytes, keyBlobBytes, encodedUvmReferenceInfo)
 	if err != nil {

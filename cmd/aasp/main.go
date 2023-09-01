@@ -432,10 +432,10 @@ func main() {
 	logrus.Debugf("   outfile:    %s", *outfile)
 	logrus.Debugf("   loglevel:    %s", *logLevel)
 
-	EncodedUvmInformation, err = common.GetUvmInformation()
-	if err != nil {
-		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
-	}
+	// EncodedUvmInformation, err = common.GetUvmInformation()
+	// if err != nil {
+	// 	logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	// }
 
 	//Decode base64 attestation information only if it s not empty
 	if *azureInfoBase64string != "" {
@@ -450,22 +450,22 @@ func main() {
 		}
 	}
 
-	// usethim := os.Getenv("USETHIM")
-	// if usethim == "true" {
-	// 	thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
-	// 	if err != nil {
-	// 		logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
-	// 	}
+	usethim := os.Getenv("USETHIM")
+	if usethim == "true" {
+		thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
+		if err != nil {
+			logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
+		}
 
-	// 	EncodedUvmInformation.InitialCerts = *thimCerts
-	// }
-	// logrus.Debugf("Printing vcek %s", EncodedUvmInformation.InitialCerts.VcekCert)
-	// logrus.Debugf("Printing tcbm %s", EncodedUvmInformation.InitialCerts.Tcbm)
-	// // pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
-	// common.GetUvmInformationAASP(&EncodedUvmInformation)
-	// if err != nil {
-	// 	logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
-	// }
+		EncodedUvmInformation.InitialCerts = *thimCerts
+	}
+	logrus.Debugf("Printing vcek %s", EncodedUvmInformation.InitialCerts.VcekCert)
+	logrus.Debugf("Printing tcbm %s", EncodedUvmInformation.InitialCerts.Tcbm)
+	// pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
+	common.GetUvmInformationAASP(&EncodedUvmInformation)
+	if err != nil {
+		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	}
 
 	var tcbm string
 
