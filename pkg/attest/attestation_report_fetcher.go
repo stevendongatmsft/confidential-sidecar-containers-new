@@ -42,7 +42,7 @@ const (
 // From sev-snp driver include/uapi/linux/psp-sev-guest.h
 const SEV_SNP_GUEST_MSG_REPORT = 3223868161
 
-const SNP_DEVICE_PATH = "/dev/sev"
+const SNP_DEVICE_PATH = "/dev/sev-guest"
 
 /*
 Creates and returns MSG_REPORT_REQ message bytes (SEV-SNP Firmware ABI Specification Table 20)
