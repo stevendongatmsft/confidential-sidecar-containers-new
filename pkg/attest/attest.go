@@ -142,7 +142,7 @@ func (certState *CertState) Attest(maa MAA, runtimeDataBytes []byte, uvmInformat
 
 	var reportFetcher AttestationReportFetcher
 	// Use fake attestation report if it's not running inside SNP VM
-	if _, err := os.Stat("/dev/sev"); errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat("/dev/sev-guest"); errors.Is(err, os.ErrNotExist) {
 		hostData := GenerateMAAHostData(inittimeDataBytes)
 		reportFetcher = UnsafeNewFakeAttestationReportFetcher(hostData)
 	} else {

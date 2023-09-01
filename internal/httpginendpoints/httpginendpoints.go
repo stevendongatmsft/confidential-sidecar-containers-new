@@ -93,14 +93,14 @@ func PostRawAttest(c *gin.Context) {
 	}
 
 	var attestationReportFetcher attest.AttestationReportFetcher
-	_, err = os.Stat("/dev/sev")
-	fmt.Println("Do we have /dev/sev? ", errors.Is(err, os.ErrNotExist))
-	_, err1 := os.Stat("/dev/sev-guest")
-	fmt.Println("Do we have /dev/sev-guest? ", errors.Is(err1, os.ErrNotExist))
+	_, err = os.Stat("/dev/sev-guest")
+	fmt.Println("Do we have /dev/sev-guest? ", errors.Is(err, os.ErrNotExist))
+
 	if errors.Is(err, os.ErrNotExist) {
 		hostData := attest.GenerateMAAHostData(inittimeDataBytes)
 		attestationReportFetcher = attest.UnsafeNewFakeAttestationReportFetcher(hostData)
 	} else {
+		fmt.Println("we are retrieving real reaport")
 		attestationReportFetcher = attest.NewAttestationReportFetcher()
 	}
 	reportData := attest.GenerateMAAReportData(runtimeDataBytes)
