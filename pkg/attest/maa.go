@@ -119,6 +119,7 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 			return nil, errors.Wrapf(err, "marhalling maa Report field failed")
 		}
 	} else {
+		fmt.Println("DO NOT include endorsement")
 		maaReport := maaReport{
 			SNPReport: base64.URLEncoding.EncodeToString(snpAttestationReport),
 			CertChain: base64.URLEncoding.EncodeToString(vcekCertChain),

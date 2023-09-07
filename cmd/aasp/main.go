@@ -53,7 +53,7 @@ var (
 	ServerCertState       attest.CertState
 	azure_info            AzureInformation
 	EncodedUvmInformation common.UvmInformation
-	CertCacheEndpoint     = "CertCacheEndpoint"
+	AaspSideCarArgs       = "AaspSideCarArgs"
 	CorruptedTCB          = "ffffffff"
 )
 
@@ -366,7 +366,7 @@ func (s *server) GetReport(c context.Context, in *keyprovider.KeyProviderGetRepo
 }
 
 func main() {
-	azureInfoBase64string := flag.String("aasp-cert-cache-args", os.Getenv(CertCacheEndpoint), "optional base64-encoded json string with azure information")
+	azureInfoBase64string := flag.String("aasp-sidecar-args", os.Getenv(AaspSideCarArgs), "optional base64-encoded json string with azure information")
 	port := flag.String("keyprovider_sock", "127.0.0.1:50000", "Port on which the grpc key provider to listen")
 	httpport := flag.String("http_keyprovider_sock", "8080", "Port on which the http key provider to listen")
 	infile := flag.String("infile", "", "The file with its content to be wrapped")
