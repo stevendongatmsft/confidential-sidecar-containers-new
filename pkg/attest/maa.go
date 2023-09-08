@@ -89,9 +89,8 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 	// the maa report is a bundle of the signed attestation report and
 	// the cert chain that endorses the signing key
 	maaReport := maaReport{
-		SNPReport:    base64.URLEncoding.EncodeToString(snpAttestationReport),
-		CertChain:    base64.URLEncoding.EncodeToString(vcekCertChain),
-		Endorsements: base64urlEncodedmaaEndorsement,
+		SNPReport: base64.URLEncoding.EncodeToString(snpAttestationReport),
+		CertChain: base64.URLEncoding.EncodeToString(vcekCertChain),
 	}
 
 	maaReportJSONBytes, err := json.Marshal(maaReport)
@@ -160,6 +159,12 @@ func (maa MAA) attest(SNPReportHexBytes []byte, vcekCertChain []byte, policyBlob
 	// HTTP POST request to MAA service
 	uri := fmt.Sprintf(AttestRequestURITemplate, maa.Endpoint, maa.TEEType, maa.APIVersion)
 	httpResponse, err := common.HTTPPRequest("POST", uri, maaRequestJSONData, "")
+	if httpResponse != nil {
+		getds := httpResponse.Header.Get("x-ms-request-id")
+		fmt.Println("the value is ", getds)
+	} else {
+		fmt.Println("no response")
+	}
 	if err != nil {
 		return "", errors.Wrapf(err, "maa post request failed")
 	}

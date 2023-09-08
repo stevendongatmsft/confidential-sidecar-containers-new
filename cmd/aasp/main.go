@@ -53,7 +53,7 @@ var (
 	ServerCertState       attest.CertState
 	azure_info            AzureInformation
 	EncodedUvmInformation common.UvmInformation
-	CertCacheEndpoint     = "CertCacheEndpoint"
+	AaspSideCarArgs       = "AaspSideCarArgs"
 	CorruptedTCB          = "ffffffff"
 )
 
@@ -360,7 +360,7 @@ func (s *server) GetReport(c context.Context, in *keyprovider.KeyProviderGetRepo
 }
 
 func main() {
-	azureInfoBase64string := flag.String("aasp-cert-cache-args", os.Getenv(CertCacheEndpoint), "optional base64-encoded json string with azure information")
+	azureInfoBase64string := flag.String("aasp-cert-cache-args", os.Getenv(AaspSideCarArgs), "optional base64-encoded json string with azure information")
 	port := flag.String("keyprovider_sock", "127.0.0.1:50000", "Port on which the grpc key provider to listen")
 	httpport := flag.String("http_keyprovider_sock", "8080", "Port on which the http key provider to listen")
 	infile := flag.String("infile", "", "The file with its content to be wrapped")
@@ -426,10 +426,10 @@ func main() {
 	logrus.Debugf("   outfile:    %s", *outfile)
 	logrus.Debugf("   loglevel:    %s", *logLevel)
 
-	EncodedUvmInformation, err = common.GetUvmInformation()
-	if err != nil {
-		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
-	}
+	// EncodedUvmInformation, err = common.GetUvmInformation()
+	// if err != nil {
+	// 	logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	// }
 
 	//Decode base64 attestation information only if it s not empty
 	if *azureInfoBase64string != "" {
@@ -444,22 +444,22 @@ func main() {
 		}
 	}
 
-	// usethim := os.Getenv("USETHIM")
-	// if usethim == "true" {
-	// 	thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
-	// 	if err != nil {
-	// 		logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
-	// 	}
+	usethim := os.Getenv("USETHIM")
+	if usethim == "true" {
+		thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
+		if err != nil {
+			logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
+		}
 
-	// 	EncodedUvmInformation.InitialCerts = *thimCerts
-	// }
-	// logrus.Debugf("Printing vcek %s", EncodedUvmInformation.InitialCerts.VcekCert)
-	// logrus.Debugf("Printing tcbm %s", EncodedUvmInformation.InitialCerts.Tcbm)
-	// // pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
-	// common.GetUvmInformationAASP(&EncodedUvmInformation)
-	// if err != nil {
-	// 	logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
-	// }
+		EncodedUvmInformation.InitialCerts = *thimCerts
+	}
+	logrus.Debugf("Printing vcek %s", EncodedUvmInformation.InitialCerts.VcekCert)
+	logrus.Debugf("Printing tcbm %s", EncodedUvmInformation.InitialCerts.Tcbm)
+	// pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
+	common.GetUvmInformationAASP(&EncodedUvmInformation)
+	if err != nil {
+		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	}
 
 	var tcbm string
 
