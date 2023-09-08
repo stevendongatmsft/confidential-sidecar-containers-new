@@ -482,6 +482,7 @@ func main() {
 	}
 
 	azure_info.Identity.ClientId = os.Getenv("AZURE_CLIENT_ID")
+	fmt.Println("azure client id is ", azure_info.Identity.ClientId)
 	if azure_info.Identity.ClientId == "" {
 		log.Printf("Warning: Env AZURE_CLIENT_ID is not set")
 	}
