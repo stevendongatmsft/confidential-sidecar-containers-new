@@ -166,6 +166,7 @@ func (maa MAA) attest(SNPReportHexBytes []byte, vcekCertChain []byte, policyBlob
 		fmt.Println("no response")
 	}
 	if err != nil {
+		fmt.Println("err : ", err)
 		return "", errors.Wrapf(err, "maa post request failed")
 	}
 
