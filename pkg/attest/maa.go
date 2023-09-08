@@ -159,6 +159,11 @@ func (maa MAA) attest(SNPReportHexBytes []byte, vcekCertChain []byte, policyBlob
 	// HTTP POST request to MAA service
 	uri := fmt.Sprintf(AttestRequestURITemplate, maa.Endpoint, maa.TEEType, maa.APIVersion)
 	httpResponse, err := common.HTTPPRequest("POST", uri, maaRequestJSONData, "")
+	if httpResponse == nil {
+		fmt.Println("http response is not nil")
+	} else {
+		fmt.Println("udisadsa, ", httpResponse.Header.Get("x-ms-request-id"))
+	}
 	if err != nil {
 		return "", errors.Wrapf(err, "maa post request failed")
 	}
