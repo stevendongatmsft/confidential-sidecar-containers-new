@@ -342,3 +342,6 @@ google.golang.org/protobuf/types/known/timestamppb
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
+# moul.io/http2curl v1.0.0
+## explicit
+moul.io/http2curl
