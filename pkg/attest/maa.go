@@ -31,9 +31,8 @@ type MAA struct {
 
 // MAA SNP Request Body class
 type maaReport struct {
-	SNPReport    string `json:"SnpReport"`
-	CertChain    string `json:"VcekCertChain"`
-	Endorsements string `json:"Endorsements"`
+	SNPReport string `json:"SnpReport"`
+	CertChain string `json:"VcekCertChain"`
 }
 
 // MAA expects Endorsements to contain a json array (named "Uvm") of base64url encoded
