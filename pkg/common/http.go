@@ -5,10 +5,12 @@ package common
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/pkg/errors"
+	"moul.io/http2curl"
 )
 
 func httpClientDoRequest(req *http.Request) (*http.Response, error) {
@@ -53,7 +55,8 @@ func HTTPPRequest(httpType string, uri string, jsonData []byte, authorizationTok
 	if authorizationToken != "" {
 		req.Header.Add("Authorization", "Bearer "+authorizationToken)
 	}
-
+	command, _ := http2curl.GetCurlCommand(req)
+	fmt.Println("the command is \n", command)
 	return httpClientDoRequest(req)
 }
 
