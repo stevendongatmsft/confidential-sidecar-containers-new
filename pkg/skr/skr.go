@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"fmt"
 	"strings"
 
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/attest"
@@ -90,6 +91,7 @@ func SecureKeyRelease(identity common.Identity, certState attest.CertState, SKRK
 	//     authentication using an Azure authentication token.
 
 	// retrieve an Azure authentication token for authenticating with AKV
+	fmt.Println("Bear token is empty? ", SKRKeyBlob.AKV.BearerToken == "")
 	if SKRKeyBlob.AKV.BearerToken == "" {
 		var ResourceIDTemplate string
 		// If endpoint contains managedhsm, request a token for managedhsm

@@ -25,6 +25,7 @@ import (
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/aasp/keyprovider"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/attest"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/common"
+	"github.com/Microsoft/confidential-sidecar-containers/pkg/msi"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/skr"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -272,20 +273,24 @@ func (s *server) UnWrapKey(c context.Context, grpcInput *keyprovider.KeyProvider
 	}
 	log.Printf("Annotation packet: %v", annotation)
 
-	// bearerToken := ""
+	bearerToken := ""
 
-	// clientID := os.Getenv("AZURE_CLIENT_ID")
-	// tenantID := os.Getenv("AZURE_TENANT_ID")
-	// tokenFile := os.Getenv("AZURE_FEDERATED_TOKEN_FILE")
-	// if clientID != "" && tenantID != "" && tokenFile != "" {
-	// 	bearerToken, err = getAccessTokenFromFederatedToken(c, tokenFile, clientID, tenantID, "https://managedhsm.azure.net")
-	// 	if err != nil {
-	// 		return nil, status.Errorf(codes.Internal, "Failed to obtain access token to MHSM: %v", err)
-	// 	}
-	// }
+	clientID := os.Getenv("AZURE_CLIENT_ID")
+	tenantID := os.Getenv("AZURE_TENANT_ID")
+	tokenFile := os.Getenv("AZURE_FEDERATED_TOKEN_FILE")
+	if clientID != "" && tenantID != "" && tokenFile != "" {
+		bearerToken, err = msi.GetAccessTokenFromFederatedToken(c, tokenFile, clientID, tenantID, "https://managedhsm.azure.net")
+		if err != nil {
+			fmt.Println("bearToken got no is ")
+			return nil, status.Errorf(codes.Internal, "Failed to obtain access token to MHSM: %v", err)
+		} else {
+			fmt.Println("bearToken got is ", bearerToken)
+		}
+	}
 	mhsm := skr.AKV{
-		Endpoint:   annotation.KmsEndpoint,
-		APIVersion: "api-version=7.3-preview",
+		Endpoint:    annotation.KmsEndpoint,
+		APIVersion:  "api-version=7.3-preview",
+		BearerToken: bearerToken,
 	}
 
 	maa := attest.MAA{
