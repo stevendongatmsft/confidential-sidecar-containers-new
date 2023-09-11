@@ -8,7 +8,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
-	"strings"
 
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/attest"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/common"
@@ -92,25 +91,25 @@ func SecureKeyRelease(identity common.Identity, certState attest.CertState, SKRK
 
 	// retrieve an Azure authentication token for authenticating with AKV
 	fmt.Println("Bear token is empty? ", SKRKeyBlob.AKV.BearerToken == "")
-	if SKRKeyBlob.AKV.BearerToken == "" {
-		var ResourceIDTemplate string
-		// If endpoint contains managedhsm, request a token for managedhsm
-		// resource; otherwise for a vault
-		if strings.Contains(SKRKeyBlob.AKV.Endpoint, "managedhsm") {
-			ResourceIDTemplate = ResourceIdManagedHSM
-		} else {
-			ResourceIDTemplate = ResourceIdVault
-		}
+	// if SKRKeyBlob.AKV.BearerToken == "" {
+	// 	var ResourceIDTemplate string
+	// 	// If endpoint contains managedhsm, request a token for managedhsm
+	// 	// resource; otherwise for a vault
+	// 	if strings.Contains(SKRKeyBlob.AKV.Endpoint, "managedhsm") {
+	// 		ResourceIDTemplate = ResourceIdManagedHSM
+	// 	} else {
+	// 		ResourceIDTemplate = ResourceIdVault
+	// 	}
 
-		token, err := common.GetToken(ResourceIDTemplate, identity)
-		if err != nil {
-			return nil, errors.Wrapf(err, "retrieving authentication token failed")
-		}
+	// 	token, err := common.GetToken(ResourceIDTemplate, identity)
+	// 	if err != nil {
+	// 		return nil, errors.Wrapf(err, "retrieving authentication token failed")
+	// 	}
 
-		// set the azure authentication token to the AKV instance
-		SKRKeyBlob.AKV.BearerToken = token.AccessToken
-		logrus.Debugf("AAD Token: %s ", token.AccessToken)
-	}
+	// 	// set the azure authentication token to the AKV instance
+	// 	SKRKeyBlob.AKV.BearerToken = token.AccessToken
+	// 	logrus.Debugf("AAD Token: %s ", token.AccessToken)
+	// }
 
 	// use the MAA token obtained from the AKV's authority to retrieve the key identified by kid. The ReleaseKey
 	// operation requires the private wrapping key to unwrap the encrypted key material released from
