@@ -8,6 +8,12 @@ import (
 	"github.com/AzureAD/microsoft-authentication-library-for-go/apps/confidential"
 )
 
+const (
+	AZURE_CLIENT_ID            = "AZURE_CLIENT_ID"
+	AZURE_TENANT_ID            = "AZURE_TENANT_ID"
+	AZURE_FEDERATED_TOKEN_FILE = "AZURE_FEDERATED_TOKEN_FILE"
+)
+
 // Convert federated token stored in a file into access token for a resource
 // Borrowed from https://github.com/Azure/azure-workload-identity/blob/c155ecee0d9fa681c15ead4bbdce729fd8c99da1/pkg/proxy/proxy.go#L195
 // See tutorial at: https://learn.microsoft.com/en-us/azure/aks/learn/tutorial-kubernetes-workload-identity

@@ -34,7 +34,7 @@ const (
 	AzureCertCacheRequestURITemplate = "https://%s/%s/certificates/%s/%s?%s"
 	AmdVCEKRequestURITemplate        = "https://%s/%s/%s?ucodeSPL=%d&snpSPL=%d&teeSPL=%d&blSPL=%d"
 	AmdCertChainRequestURITemplate   = "https://%s/%s/cert_chain"
-	LocalTHIMUriTemplate             = "http://%s" // To-Do update once we know what this looks like
+	LocalTHIMUri                     = "http://169.254.169.254/metadata/THIM/amd/certification"
 )
 
 const (
@@ -260,8 +260,7 @@ func (certFetcher CertFetcher) retrieveCertChain(chipID string, reportedTCB uint
 			return fullCertChain, reportedTCB, nil
 		case "LocalTHIM":
 			logrus.Debugf("Retrieving Cert Chain from Local THIM Endpoint %s...", certFetcher.Endpoint)
-			uri = fmt.Sprintf(LocalTHIMUriTemplate, certFetcher.Endpoint)
-			THIMCertsBytes, err := fetchWithRetry(uri, defaultRetryBaseSec, defaultRetryMaxRetries, getThimCertsHttp)
+			THIMCertsBytes, err := fetchWithRetry(LocalTHIMUri, defaultRetryBaseSec, defaultRetryMaxRetries, getThimCertsHttp)
 			if err != nil {
 				return nil, thimTcbm, errors.Wrapf(err, "pulling cert chain response from URL '%s' failed", uri)
 			}
@@ -323,9 +322,8 @@ func getThimCertsHttp(uri string) (*http.Response, error) {
 	return httpResponse, nil
 }
 
-func (certFetcher CertFetcher) GetThimCerts(uri string) (*common.THIMCerts, error) {
-	uri = fmt.Sprintf(LocalTHIMUriTemplate, uri)
-	THIMCertsBytes, err := fetchWithRetry(uri, defaultRetryBaseSec, defaultRetryMaxRetries, getThimCertsHttp)
+func (certFetcher CertFetcher) GetThimCerts() (*common.THIMCerts, error) {
+	THIMCertsBytes, err := fetchWithRetry(LocalTHIMUri, defaultRetryBaseSec, defaultRetryMaxRetries, getThimCertsHttp)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Fetching THIM Certs with retries failed.")
 	}

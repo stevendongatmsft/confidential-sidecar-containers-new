@@ -87,7 +87,7 @@ func GetUvmSecurityCtxDir() (string, error) {
 	if securityContextDir == "" {
 		return "", errors.New("UVM_SECURITY_CONTEXT_DIR not set")
 	}
-  logrus.Infof("UVM_SECURITY_CONTEXT_DIR is set to %s", securityContextDir)
+	logrus.Infof("UVM_SECURITY_CONTEXT_DIR is set to %s", securityContextDir)
 	return securityContextDir, nil
 }
 
@@ -155,7 +155,7 @@ func GetUvmInformationFromFiles() (UvmInformation, error) {
 
 	encodedHostCertsFromTHIM, err := readSecurityContextFile(securityContextDir, HostAMDCertFilename)
 	if err != nil {
-		return encodedUvmInformation, errors.Wrapf(err, "reading host amd cert failed")
+		logrus.Warn(errors.Wrapf(err, "reading host amd cert failed"))
 	}
 
 	if GenerateTestData {
@@ -166,18 +166,18 @@ func GetUvmInformationFromFiles() (UvmInformation, error) {
 		var err error
 		encodedUvmInformation.InitialCerts, err = ParseTHIMCertsFromString(encodedHostCertsFromTHIM)
 		if err != nil {
-			return encodedUvmInformation, err
+			logrus.Warn(errors.Wrapf(err, "parsing THIM Certs from string failed"))
 		}
 	}
 
 	encodedUvmInformation.EncodedSecurityPolicy, err = readSecurityContextFile(securityContextDir, PolicyFilename)
 	if err != nil {
-		return encodedUvmInformation, errors.Wrapf(err, "reading security policy failed")
+		logrus.Warn(errors.Wrapf(err, "reading security policy failed"))
 	}
 
 	encodedUvmInformation.EncodedUvmReferenceInfo, err = GetReferenceInfoFile(securityContextDir, ReferenceInfoFilename)
 	if err != nil {
-		return encodedUvmInformation, err
+		logrus.Warn(errors.Wrapf(err, "reading reference info file failed"))
 	}
 
 	if GenerateTestData {
@@ -185,7 +185,7 @@ func GetUvmInformationFromFiles() (UvmInformation, error) {
 		os.WriteFile("uvm_reference_info.base64", []byte(encodedUvmInformation.EncodedUvmReferenceInfo), 0644)
 	}
 
-	return encodedUvmInformation, nil
+	return encodedUvmInformation, err
 }
 
 func GetReferenceInfoFile(securityContextDir string, ReferenceInfoFilename string) (string, error) {

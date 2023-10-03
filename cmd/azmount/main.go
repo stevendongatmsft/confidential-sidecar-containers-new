@@ -43,7 +43,7 @@ func main() {
 	pageBlobPrivate := flag.String("private", "false", "Page blob is private and thus requires credentials")
 	encodedIdentity := flag.String("identity", "", "base64-encoded string of identity information")
 	localFilePath := flag.String("localpath", "", "Path of a local file with the filesystem to mount.")
-	logLevel := flag.String("loglevel", "warning", "Logging Level: trace, debug, info, warning, error, fatal, panic.")
+	logLevel := flag.String("loglevel", "debug", "Logging Level: trace, debug, info, warning, error, fatal, panic.")
 	logFile := flag.String("logfile", "", "Logging Target: An optional file name/path. Omit for console output.")
 	blockSize := flag.Int("blocksize", 512, "Size of a cache block in KiB")
 	numBlocks := flag.Int("numblocks", 32, "Number of cache blocks")

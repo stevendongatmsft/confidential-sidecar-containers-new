@@ -25,7 +25,6 @@ import (
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/aasp/keyprovider"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/attest"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/common"
-	"github.com/Microsoft/confidential-sidecar-containers/pkg/msi"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/skr"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -262,22 +261,22 @@ func (s *server) UnWrapKey(c context.Context, grpcInput *keyprovider.KeyProvider
 	}
 	log.Printf("Annotation packet: %v", annotation)
 
-	bearerToken := ""
+	// bearerToken := ""
 
-	clientID := os.Getenv(AZURE_CLIENT_ID)
-	tenantID := os.Getenv(AZURE_TENANT_ID)
-	tokenFile := os.Getenv(AZURE_FEDERATED_TOKEN_FILE)
-	if clientID != "" && tenantID != "" && tokenFile != "" {
-		bearerToken, err = msi.GetAccessTokenFromFederatedToken(c, tokenFile, clientID, tenantID, "https://managedhsm.azure.net")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Failed to obtain access token to MHSM: %v", err)
-		}
-	}
+	// clientID := os.Getenv(AZURE_CLIENT_ID)
+	// tenantID := os.Getenv(AZURE_TENANT_ID)
+	// tokenFile := os.Getenv(AZURE_FEDERATED_TOKEN_FILE)
+	// if clientID != "" && tenantID != "" && tokenFile != "" {
+	// 	bearerToken, err = msi.GetAccessTokenFromFederatedToken(c, tokenFile, clientID, tenantID, "https://managedhsm.azure.net")
+	// 	if err != nil {
+	// 		return nil, status.Errorf(codes.Internal, "Failed to obtain access token to MHSM: %v", err)
+	// 	}
+	// }
 
 	mhsm := skr.AKV{
-		Endpoint:    annotation.KmsEndpoint,
-		APIVersion:  "api-version=7.3-preview",
-		BearerToken: bearerToken,
+		Endpoint:   annotation.KmsEndpoint,
+		APIVersion: "api-version=7.3-preview",
+		//BearerToken: bearerToken,
 	}
 
 	maa := attest.MAA{
@@ -431,18 +430,17 @@ func main() {
 		}
 	}
 
-	thimCerts, err := azure_info.CertFetcher.GetThimCerts(azure_info.CertFetcher.Endpoint)
+	EncodedUvmInformation, err = common.GetUvmInformation()
+	if err != nil {
+		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
+	}
+
+	thimCerts, err := azure_info.CertFetcher.GetThimCerts()
 	if err != nil {
 		logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
 	}
 
 	EncodedUvmInformation.InitialCerts = *thimCerts
-
-	// pass in EncodedUvmInformation because ciruclar reference is created if we have the following func to retrieve THIM Cert
-	common.GetUvmInformationAASP(&EncodedUvmInformation)
-	if err != nil {
-		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
-	}
 
 	var tcbm string
 

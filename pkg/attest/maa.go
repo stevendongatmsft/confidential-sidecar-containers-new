@@ -31,9 +31,8 @@ type MAA struct {
 
 // MAA SNP Request Body class
 type maaReport struct {
-	SNPReport    string `json:"SnpReport"`
-	CertChain    string `json:"VcekCertChain"`
-	Endorsements string `json:"Endorsements"`
+	SNPReport string `json:"SnpReport"`
+	CertChain string `json:"VcekCertChain"`
 }
 
 // MAA expects Endorsements to contain a json array (named "Uvm") of base64url encoded
@@ -91,9 +90,9 @@ func newAttestSNPRequestBody(snpAttestationReport []byte, vcekCertChain []byte, 
 	// the maa report is a bundle of the signed attestation report and
 	// the cert chain that endorses the signing key
 	maaReport := maaReport{
-		SNPReport:    base64.URLEncoding.EncodeToString(snpAttestationReport),
-		CertChain:    base64.URLEncoding.EncodeToString(vcekCertChain),
-		Endorsements: base64urlEncodedmaaEndorsement,
+		SNPReport: base64.URLEncoding.EncodeToString(snpAttestationReport),
+		CertChain: base64.URLEncoding.EncodeToString(vcekCertChain),
+		//Endorsements: base64urlEncodedmaaEndorsement,
 	}
 
 	logrus.Debugf("Marshalling maaReport: %+v", maaReport)

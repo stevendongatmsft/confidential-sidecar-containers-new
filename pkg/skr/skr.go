@@ -4,13 +4,16 @@
 package skr
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"os"
 	"strings"
 
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/attest"
 	"github.com/Microsoft/confidential-sidecar-containers/pkg/common"
+	"github.com/Microsoft/confidential-sidecar-containers/pkg/msi"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -93,25 +96,41 @@ func SecureKeyRelease(identity common.Identity, certState attest.CertState, SKRK
 
 	// retrieve an Azure authentication token for authenticating with AKV
 	if SKRKeyBlob.AKV.BearerToken == "" {
-		logrus.Info("Retrieving Azure authentication token...")
-		var ResourceIDTemplate string
-		// If endpoint contains managedhsm, request a token for managedhsm
-		// resource; otherwise for a vault
-		if strings.Contains(SKRKeyBlob.AKV.Endpoint, "managedhsm") {
-			logrus.Info("Requesting token for managedhsm...")
-			ResourceIDTemplate = ResourceIdManagedHSM
-		} else {
-			logrus.Info("Requesting token for vault...")
-			ResourceIDTemplate = ResourceIdVault
-		}
+		ctx := context.TODO()
+		bearerToken := ""
 
-		token, err := common.GetToken(ResourceIDTemplate, identity)
-		if err != nil {
-			return nil, errors.Wrapf(err, "retrieving authentication token failed")
+		clientID := os.Getenv(msi.AZURE_CLIENT_ID)
+		tenantID := os.Getenv(msi.AZURE_TENANT_ID)
+		tokenFile := os.Getenv(msi.AZURE_FEDERATED_TOKEN_FILE)
+
+		if clientID != "" && tenantID != "" && tokenFile != "" {
+			logrus.Info("Requesting token for using workload identity.")
+			bearerToken, err = msi.GetAccessTokenFromFederatedToken(ctx, tokenFile, clientID, tenantID, "https://managedhsm.azure.net")
+			if err != nil {
+				return nil, errors.Wrapf(err, "retrieving authentication token using workload identity failed")
+			}
+		} else {
+			var ResourceIDTemplate string
+			// If endpoint contains managedhsm, request a token for managedhsm
+			// resource; otherwise for a vault
+			if strings.Contains(SKRKeyBlob.AKV.Endpoint, "managedhsm") {
+				logrus.Info("Requesting token for managedhsm...")
+				ResourceIDTemplate = ResourceIdManagedHSM
+			} else {
+				logrus.Info("Requesting token for vault...")
+				ResourceIDTemplate = ResourceIdVault
+			}
+
+			token, err := common.GetToken(ResourceIDTemplate, identity)
+			if err != nil {
+				return nil, errors.Wrapf(err, "retrieving authentication token failed")
+			}
+			bearerToken = token.AccessToken
 		}
+		logrus.Info("Retrieving Azure authentication token...")
 
 		// set the azure authentication token to the AKV instance
-		SKRKeyBlob.AKV.BearerToken = token.AccessToken
+		SKRKeyBlob.AKV.BearerToken = bearerToken
 	}
 	logrus.Debugf("AAD Token: %s ", SKRKeyBlob.AKV.BearerToken)
 
