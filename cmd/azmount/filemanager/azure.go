@@ -76,6 +76,20 @@ func tokenRefresher(credential azblob.TokenCredential) (t time.Duration) {
 	return time.Duration(1000 * 1000 * 1000 * ExpiresInSeconds)
 }
 
+func tokenRefresherWorkloadIdentity(credential azblob.TokenCredential) (t time.Duration) {
+	ctx := context.TODO()
+	clientID := os.Getenv(msi.AZURE_CLIENT_ID)
+	tenantID := os.Getenv(msi.AZURE_TENANT_ID)
+	tokenFile := os.Getenv(msi.AZURE_FEDERATED_TOKEN_FILE)
+	bearerToken, err := msi.GetAccessTokenFromFederatedToken(ctx, tokenFile, clientID, tenantID, "https://sdongmlinferencedemo.blob.core.windows.net")
+	if err != nil {
+		logrus.Warnf("Error retrieving token: %s", err)
+	}
+
+	credential.SetToken(bearerToken)
+	return time.Duration(1000 * 1000 * 1000 * 1000)
+}
+
 // For more information about the library used to access Azure:
 //
 //     https://pkg.go.dev/github.com/Azure/azure-storage-blob-go/azblob
@@ -137,7 +151,8 @@ func AzureSetup(urlString string, urlPrivate bool, identity common.Identity) err
 				}
 			}
 		}
-		tokenCredential := azblob.NewTokenCredential(bearerToken, tokenRefresher)
+		tokenCredential := azblob.NewTokenCredential(bearerToken, nil)
+
 		logrus.Debugf("Token credential created: %s", tokenCredential.Token())
 		fm.blobURL = azblob.NewPageBlobURL(*u, azblob.NewPipeline(tokenCredential, azblob.PipelineOptions{}))
 		logrus.Debugf("Blob URL created: %s", fm.blobURL)
@@ -163,7 +178,7 @@ func AzureSetup(urlString string, urlPrivate bool, identity common.Identity) err
 	}
 	fm.contentLength = getMetadata.ContentLength()
 	logrus.Tracef("Blob Size: %d bytes", fm.contentLength)
-	logrus.Debugf("size of file is %d", fm.contentLength)
+	logrus.Debugf("size of file is %+v", getMetadata)
 
 	// Setup data downloader and uploader
 	fm.downloadBlock = AzureDownloadBlock
