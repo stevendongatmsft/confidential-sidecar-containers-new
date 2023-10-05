@@ -22,6 +22,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var accessToken string
+
 // tokenRefresher is a function callback passed during the creation of token credentials
 // its implementation shall update an expired token with a new token and return the new
 // expiring duration.
@@ -70,7 +72,7 @@ func tokenRefresher(credential azblob.TokenCredential) (t time.Duration) {
 		logrus.Errorf("Error parsing token expiration to seconds: %s", err)
 		return 0
 	}
-	credential.SetToken(refreshToken.AccessToken)
+	credential.SetToken(accessToken)
 	return time.Duration(1000 * 1000 * 1000 * ExpiresInSeconds)
 }
 
@@ -104,6 +106,8 @@ func AzureSetup(urlString string, urlPrivate bool, identity common.Identity) err
 		if clientID != "" && tenantID != "" && tokenFile != "" {
 			logrus.Info("Requesting token for using workload identity.")
 			bearerToken, err = msi.GetAccessTokenFromFederatedToken(ctx, tokenFile, clientID, tenantID, "https://sdongmlinferencedemo.blob.core.windows.net")
+			logrus.Debugf("access toekn is : ", bearerToken)
+			accessToken = bearerToken
 			if err != nil {
 				return errors.Wrapf(err, "retrieving authentication token using workload identity failed")
 			}
