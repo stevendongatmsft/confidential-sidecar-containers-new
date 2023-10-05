@@ -177,8 +177,9 @@ func AzureSetup(urlString string, urlPrivate bool, identity common.Identity) err
 		return errors.Wrapf(err, "Can't get blob file size")
 	}
 	fm.contentLength = getMetadata.ContentLength()
+
 	logrus.Tracef("Blob Size: %d bytes", fm.contentLength)
-	logrus.Debugf("size of file is %+v", getMetadata)
+	logrus.Debugf("size of file is %s", getMetadata.ContentEncoding())
 
 	// Setup data downloader and uploader
 	fm.downloadBlock = AzureDownloadBlock

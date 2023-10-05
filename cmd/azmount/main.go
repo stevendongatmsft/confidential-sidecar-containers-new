@@ -165,6 +165,8 @@ func main() {
 	}
 
 	logrus.Info("Setting up FUSE...")
+	fmt.Println("print out mount point ", mountPoint)
+	fmt.Println("print out mount point2 ", *mountPoint)
 	err = FuseSetup(*mountPoint, readWriteBool)
 	if err != nil {
 		logrus.Fatalf("FUSE error: " + err.Error())

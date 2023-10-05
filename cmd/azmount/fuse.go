@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"syscall"
 
@@ -22,6 +23,7 @@ func FuseSetup(mountpoint string, readWrite bool) error {
 
 	var c *fuse.Conn
 	var err error
+	fmt.Printf("printing out fuseconnection %+v", c)
 	if readWrite {
 		c, err = fuse.Mount(
 			mountpoint,
@@ -36,7 +38,7 @@ func FuseSetup(mountpoint string, readWrite bool) error {
 			fuse.ReadOnly(),
 		)
 	}
-
+	fmt.Println("printout err", err)
 	if err != nil {
 		return errors.Wrapf(err, "Can't start fuse")
 	}
