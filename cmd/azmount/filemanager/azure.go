@@ -106,7 +106,7 @@ func AzureSetup(urlString string, urlPrivate bool, identity common.Identity) err
 		if clientID != "" && tenantID != "" && tokenFile != "" {
 			logrus.Info("Requesting token for using workload identity.")
 			bearerToken, err = msi.GetAccessTokenFromFederatedToken(ctx, tokenFile, clientID, tenantID, "https://sdongmlinferencedemo.blob.core.windows.net")
-			logrus.Debugf("access toekn is : ", bearerToken)
+			logrus.Debugf("access toekn is : %s", bearerToken)
 			accessToken = bearerToken
 			if err != nil {
 				return errors.Wrapf(err, "retrieving authentication token using workload identity failed")
@@ -163,6 +163,7 @@ func AzureSetup(urlString string, urlPrivate bool, identity common.Identity) err
 	}
 	fm.contentLength = getMetadata.ContentLength()
 	logrus.Tracef("Blob Size: %d bytes", fm.contentLength)
+	logrus.Debugf("size of file is %s", fm.contentLength)
 
 	// Setup data downloader and uploader
 	fm.downloadBlock = AzureDownloadBlock
