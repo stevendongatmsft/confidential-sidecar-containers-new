@@ -363,14 +363,12 @@ func MountAzureFilesystems(tempDir string, info RemoteFilesystemsInformation) (e
 		logrus.Fatalf("Failed to extract UVM_* environment variables: %s", err.Error())
 	}
 
-	if EncodedUvmInformation.InitialCerts == nil {
-		logrus.Info("temporary message for debugging purposes ")
-		thimCerts, err := info.AzureInfo.CertFetcher.GetThimCerts()
-		if err != nil {
-			logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
-		}
-		EncodedUvmInformation.InitialCerts = *thimCerts
+	logrus.Info("temporary message for debugging purposes ")
+	thimCerts, err := info.AzureInfo.CertFetcher.GetThimCerts()
+	if err != nil {
+		logrus.Fatalf("Failed to retrieve thim certs: %s", err.Error())
 	}
+	EncodedUvmInformation.InitialCerts = *thimCerts
 
 	logrus.Debugf("EncodedUvmInformation.InitialCerts.Tcbm: %s\n", EncodedUvmInformation.InitialCerts.Tcbm)
 	thimTcbm, err := strconv.ParseUint(EncodedUvmInformation.InitialCerts.Tcbm, 16, 64)
