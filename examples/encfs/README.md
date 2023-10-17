@@ -153,7 +153,7 @@ https://accmhsm.managedhsm.azure.net/keys/doc-sample-key-release/8659****0cdff08
 {"version":"0.2","anyOf":[{"authority":"https://sharedeus2.eus2.test.attest.azure.net","allOf":[{"claim":"x-ms-sevsnpvm-hostdata","equals":"aaa7***7cc09d"},{"claim":"x-ms-compliance-status","equals":"azure-compliant-uvm"},{"claim":"x-ms-sevsnpvm-is-debuggable","equals":"false"}]}]}
 ```
 
-In this case, use the following commands to verify the key has been successfully imported: 
+In this case, use the following commands to verify the key has been successfully imported. Eg. If the key vault url is https://accmhsm.managedhsm.azure.net for example, the value of <MHSM NAME> will be `accmhsm`.
 
 ```
 az account set --subscription "<SUBSCRIPTION>"
@@ -313,7 +313,7 @@ The url of the uploaded blob needs to be copied into [`encfs-sidecar-args.json`]
 
 
 
-Base64 encode the encfs-sidecar-args.json and replace [`encfs.yaml`](encfs.yaml#L25) EncfsSideCarArgs value with the encoded string. 
+Base64 encode the encfs-sidecar-args.json and replace [`EncfsSideCarArgs`](encfs.yaml#L21) env value with the encoded string. 
 
 
 #### 8. Generate security policy for the encfs YAML file
@@ -354,7 +354,7 @@ https://accmhsm.managedhsm.azure.net/keys/doc-sample-key-release/8659****0cdff08
 {"version":"0.2","anyOf":[{"authority":"https://sharedeus2.eus2.test.attest.azure.net","allOf":[{"claim":"x-ms-sevsnpvm-hostdata","equals":"aaa7***7cc09d"},{"claim":"x-ms-compliance-status","equals":"azure-compliant-uvm"},{"claim":"x-ms-sevsnpvm-is-debuggable","equals":"false"}]}]}
 ```
 
-In this case, use the following commands to verify the key has been successfully imported: 
+In this case, use the following commands to verify the key has been successfully imported. Eg. If the key vault url is https://accmhsm.managedhsm.azure.net for example, the value of <MHSM NAME> will be `accmhsm`.
 
 ```
 az account set --subscription "<SUBSCRIPTION>"
