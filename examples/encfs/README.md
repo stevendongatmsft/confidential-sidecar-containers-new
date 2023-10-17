@@ -1,28 +1,37 @@
-## title {.tabset .tabset-fade}
-content above tabbed region.
+Project Name
+Contents
+📘 Tab 1
+📗 Tab 2
+📕 Tab 3
+📘 Tab 1
+<details> <summary>Click to expand!</summary>
 
-### tab Social-Media
+Section 1.1
+Content for section 1.1
 
-tab content Social-Media
+Section 1.2
+Content for section 1.2
 
-### tab Contact
+</details>
 
-tab content  Contact
+📗 Tab 2
+<details> <summary>Click to expand!</summary>
 
-### tab Revisions
+Section 2.1
+Content for section 2.1
 
-tab content  Revisions
+Section 2.2
+Content for section 2.2
 
-### tab Articles
+</details>
 
-tab content  Articles
+📕 Tab 3
+<details> <summary>Click to expand!</summary>
 
-### tab Skills
+Section 3.1
+Content for section 3.1
 
-tab content  Skills
+Section 3.2
+Content for section 3.2
 
-### tab Insights
-
-tab content  Insights
-
-content below tabbed region
+</details>
