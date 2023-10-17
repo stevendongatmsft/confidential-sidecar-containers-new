@@ -182,20 +182,20 @@ This is a file inside the filesystem.
 
 #### 1. Enabling workload identity on your AKS cluster
 
-Update the AKS cluster using the az aks update command with the --enable-oidc-issuer parameter to use the OIDC Issuer.
+Update the AKS cluster using the az aks update command with the `--enable-oidc-issuer` parameter to use the OIDC Issuer.
 
 ```
 export RESOURCE_GROUP="myResourceGroup" # This is the name of the resource group your AKS cluster resides 
 az aks update -g "${RESOURCE_GROUP}" -n myAKSCluster --enable-oidc-issuer --enable-workload-identity
 ```
 
-Or append --enable-oidc-issuer --enable-workload-identity flags to the end of your az aks create command so that the cluster is created to use the OIDC issuer. 
+Or append `--enable-oidc-issuer` `--enable-workload-identity` parameters to the end of your az aks create command so that the cluster is created to use the OIDC issuer. 
 
 #### 2. Setup Federated Identity using Managed Identity as the Parent Resource 
 
 ```
 export LOCATION="westcentralus" # This is the region of the resource group your AKS cluster resides 
-export SERVICE_ACCOUNT_NAMESPACE="default" # This is the namespace you intend to run encfs workload
+export SERVICE_ACCOUNT_NAMESPACE="default" # This is the kubernetes namespace you intend to run encfs workload
 export SERVICE_ACCOUNT_NAME="workload-identity-sa" 
 export SUBSCRIPTION="$(az account show --query id --output tsv)"
 export USER_ASSIGNED_IDENTITY_NAME="myIdentity" 
@@ -299,7 +299,7 @@ lost+found  test.txt
 [!] Closing device...
 ```
 
-The user needs to upload the blob to the previously generated storage container by uploading to the Azure Portal, using [az storage blob upload] (https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-cli), or using [azcopy] (https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json). 
+The user needs to upload the blob to the previously generated storage container by uploading to the Azure Portal, using [az storage blob upload](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-cli), or using [azcopy](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json). 
 When uploading the blob, the type must be specified as a "page blob" for a read-write filesystem. However, block blobs are allowed for read-only filesystems.
 
 ```az storage blob upload --file generatefs/encfs.img --container-name <storage container name> --name <name of blob of the image generated> --account-name <storage account name> --type <page or block blob> --auth-mode login```
