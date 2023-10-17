@@ -69,6 +69,7 @@ az account get-access-token --resource https://managedhsm.azure.net
 
 Replace [AAD token](importkeyconfig.json#L11) in `importkeyconfig.json` with the output accessToken.
 Replace [ENCFS AKV endpoint](encfs-sidecar-args.json#L15) in `enfcs-sidecar-args.json` with the mhsm endpoint.
+Replace [ENCFS AKV endpoint](importkeyconfig.json#L9) in `importkeyconfig.json` with the mhsm endpoint.
 
 #### 5. Fill in Key Information
 
@@ -309,8 +310,11 @@ When uploading the blob, the type must be specified as a "page blob" for a read-
 The url of the uploaded blob needs to be copied into [`encfs-sidecar-args.json`](encfs-sidecar-args.json#L5) file. 
 
 
-#### 7. Fill in Key Info 
+#### 7. Fill in Key Information
 
+Fill in the `importkeyconfig.json` file with the name of the key to be created and imported into the key vault [Key name](importkeyconfig.json#L3). Additionally, fill in `encfs-sidecar-args.json` with the name of the key to be retrieved from the key vault [Key name](encfs-sidecar-args.json#L9).
+
+Additionally, fill in the optional [key derivation](importkeyconfig.json#L14) for RSA keys and [Key type](importkeyconfig.json#L4) RSA-HSM or oct-HSM fields or remove these fields from the importkeyconfig.json file. Fill in key derivation and Key type: RSA-HSM or oct-HSM in encfs-sidecar-args.json as well.
 
 
 Base64 encode the encfs-sidecar-args.json and replace [`EncfsSideCarArgs`](encfs.yaml#L21) env value with the encoded string. 
@@ -339,6 +343,7 @@ az account get-access-token --resource https://managedhsm.azure.net
 
 Replace [AAD token](importkeyconfig.json#L11) in `importkeyconfig.json` with the output accessToken.
 Replace [ENCFS AKV endpoint](encfs-sidecar-args.json#L15) in `enfcs-sidecar-args.json` with the mhsm endpoint.
+Replace [ENCFS AKV endpoint](importkeyconfig.json#L9) in `importkeyconfig.json` with the mhsm endpoint.
 
 A fake encryption key is used in the command below to see the key get released. To import the key into AKV/mHSM, use the following command:
 
